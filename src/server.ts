@@ -5,7 +5,31 @@ import multipart from "@fastify/multipart";
 import { analisarEdital } from "./services/gemini.js";
 import { extrairTextoPDF } from "./services/pdf.service.js";
 
-const app = fastify();
+const app = fastify({
+  logger: true,
+});
+
+app.addHook("onRequest", async (request) => {
+  request.log.info(
+    {
+      method: request.method,
+      url: request.url,
+    },
+    "Requisição recebida",
+  );
+});
+
+app.addHook("onResponse", async (request, reply) => {
+  request.log.info(
+    {
+      method: request.method,
+      url: request.url,
+      statusCode: reply.statusCode,
+      responseTime: reply.elapsedTime,
+    },
+    "Requisição finalizada",
+  );
+});
 
 await app.register(cors, {
   origin: [
